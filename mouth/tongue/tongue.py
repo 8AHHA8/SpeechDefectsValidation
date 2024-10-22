@@ -1,84 +1,112 @@
 import cv2
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk  # Importuj PIL do obsługi formatów obrazów w Tkinterze
 import mediapipe as mp
-import numpy as np
 from display import app, camera_canvas
-from .lower_face_coordinates import get_extended_lower_face_coordinates
-from .optical_flow_vectors import draw_optical_flow_vectors
-from .determine_directions import determine_directions
-from .display_directions import display_directions
+from .lower_face_coordinates import get_extended_lower_face_coordinates  # Importuj funkcję do uzyskiwania współrzędnych dolnej części twarzy
+from .optical_flow_vectors import draw_optical_flow_vectors  # Importuj funkcję do obliczania wektorów przepływu optycznego
+from .determine_directions import determine_directions  # Importuj funkcję do określania kierunków ruchu
+from .display_directions import display_directions  # Importuj funkcję do wyświetlania kierunków ruchu
+import time  # Importuj moduł time do mierzenia liczby klatek na sekundę (FPS)
 
+# Inicjalizuj model FaceMesh MediaPipe do wykrywania punktów charakterystycznych twarzy
 mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1)
+face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1)  # Wykrywaj maksymalnie jedną twarz
 
+# Funkcja obsługująca wykrywanie ruchu języka
 def tongue():
-    print("Tongue detection started")
-    
-    cap = cv2.VideoCapture(0)
+    print("Tongue detection started")  # Wypisz komunikat informujący o rozpoczęciu wykrywania
+
+    cap = cv2.VideoCapture(0)  # Przechwytuj obraz wideo z domyślnej kamery (indeks 0)
     if not cap.isOpened():
-        print("Error: Could not open camera.")
-        return
+        print("Error: Could not open camera.")  # Wypisz błąd, jeśli kamera nie może być dostępna
+        return  # Zakończ funkcję, jeśli kamera nie jest otwarta
 
-    prev_gray = None
-    vertical_movement_threshold = 1
-    horizontal_movement_threshold = 0.1
+    prev_gray = None  # Inicjalizuj zmienną do przechowywania poprzedniej klatki w skali szarości dla przepływu optycznego
+    vertical_movement_threshold = 0.5  # Próg czułości dla ruchu pionowego
+    horizontal_movement_threshold = 0.1  # Próg czułości dla ruchu poziomego
 
-    current_horizontal_direction = None
-    current_vertical_direction = None
+    current_horizontal_direction = None  # Zmienna do przechowywania aktualnie wykrywanego kierunku poziomego
+    current_vertical_direction = None  # Zmienna do przechowywania aktualnie wykrywanego kierunku pionowego
 
-    instruction_start_time = cv2.getTickCount()
-    instruction_duration = 10 * cv2.getTickFrequency()
+    prev_time = time.time()  # Zapisz początkowy czas do mierzenia liczby klatek na sekundę (FPS)
 
-    while True:
-        ret, frame = cap.read()
+    while True:  # Główna pętla przechwytywania klatek i przetwarzania wykrywania języka
+        ret, frame = cap.read()  # Odczytaj bieżącą klatkę z kamery
         if not ret:
-            print("Error: Could not read frame.")
-            break
-        
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        if prev_gray is None:
-            prev_gray = gray
-            continue
+            print("Error: Could not read frame.")  # Wypisz błąd, jeśli klatka nie mogła zostać odczytana
+            break  # Zakończ pętlę, jeśli odczytanie klatki się nie powiedzie
 
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Przekształć bieżącą klatkę na skalę szarości do przepływu optycznego
+        if prev_gray is None:  # Jeśli to jest pierwsza klatka
+            prev_gray = gray  # Ustaw bieżącą klatkę w skali szarości jako poprzednią
+            continue  # Pomiń resztę pętli dla pierwszej klatki
+
+        # Oblicz przepływ optyczny między poprzednią a bieżącą klatką w skali szarości
         flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+        
+        # Pobierz wysokość i szerokość obrazu
         img_height, img_width, _ = frame.shape
+        
+        # Przekształć klatkę na RGB do przetwarzania przez MediaPipe
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Wykonaj wykrywanie punktów charakterystycznych twarzy przy użyciu MediaPipe
         results = face_mesh.process(img_rgb)
 
-        if (cv2.getTickCount() - instruction_start_time) < instruction_duration:
-            instruction_text = "Please adjust yourself!"
-            cv2.putText(frame, instruction_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
-        else:
-            if results.multi_face_landmarks:
-                for face_landmarks in results.multi_face_landmarks:
-                    top_left, bottom_right = get_extended_lower_face_coordinates(face_landmarks.landmark, img_width, img_height)
-                    cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
+        if results.multi_face_landmarks:  # Jeśli wykryto punkty charakterystyczne
+            for face_landmarks in results.multi_face_landmarks:  # Przejdź przez każdą wykrytą twarz
+                # Uzyskaj współrzędne rozszerzonego obszaru dolnej części twarzy (w tym ust)
+                top_left, bottom_right = get_extended_lower_face_coordinates(face_landmarks.landmark, img_width, img_height)
+                
+                # Narysuj prostokąt wokół obszaru dolnej części twarzy
+                cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
 
-                    sum_fx, sum_fy, count = draw_optical_flow_vectors(frame, flow, top_left, bottom_right)
+                # Oblicz sumę wektorów przepływu optycznego w obszarze dolnej części twarzy
+                sum_fx, sum_fy, count = draw_optical_flow_vectors(frame, flow, top_left, bottom_right)
 
-                    if count > 0:
-                        avg_fx = sum_fx / count
-                        avg_fy = sum_fy / count
+                if count > 0:  # Jeśli znaleziono wektory przepływu optycznego w regionie
+                    avg_fx = sum_fx / count  # Oblicz średni poziomy wektor przepływu
+                    avg_fy = sum_fy / count  # Oblicz średni pionowy wektor przepływu
 
-                        new_horizontal_direction, new_vertical_direction = determine_directions(avg_fx, avg_fy, horizontal_movement_threshold, vertical_movement_threshold)
+                    # Określ nowe kierunki ruchu na podstawie średnich wektorów przepływu
+                    new_horizontal_direction, new_vertical_direction = determine_directions(avg_fx, avg_fy, horizontal_movement_threshold, vertical_movement_threshold)
 
-                        if new_horizontal_direction and new_horizontal_direction != current_horizontal_direction:
-                            current_horizontal_direction = new_horizontal_direction
-                        if new_vertical_direction and new_vertical_direction != current_vertical_direction:
-                            current_vertical_direction = new_vertical_direction
+                    # Jeśli zmienił się kierunek poziomy, zaktualizuj go
+                    if new_horizontal_direction and new_horizontal_direction != current_horizontal_direction:
+                        current_horizontal_direction = new_horizontal_direction
+                    
+                    # Jeśli zmienił się kierunek pionowy, zaktualizuj go
+                    if new_vertical_direction and new_vertical_direction != current_vertical_direction:
+                        current_vertical_direction = new_vertical_direction
 
-            display_directions(frame, current_horizontal_direction, current_vertical_direction)
+        # Wyświetl wykryte kierunki ruchu na klatce
+        display_directions(frame, current_horizontal_direction, current_vertical_direction)
 
+        # Ustaw bieżącą klatkę w skali szarości jako poprzednią do następnej iteracji pętli
         prev_gray = gray
 
+        # Zmierz czas między klatkami, aby obliczyć liczbę klatek na sekundę (FPS)
+        current_time = cv2.getTickCount()
+        time_diff = (current_time - prev_time) / cv2.getTickFrequency()  # Oblicz różnicę czasową
+        fps = 1.0 / time_diff  # Oblicz liczbę klatek na sekundę
+        prev_time = current_time  # Zaktualizuj poprzedni czas do następnej klatki
+
+        # Wyświetl liczbę FPS na klatce
+        cv2.putText(frame, f"FPS: {fps:.2f}", (10, 400), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
+        # Przekształć klatkę na obraz PIL do wyświetlania w Tkinterze
         pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        
+        # Przekształć obraz PIL na format, który może wyświetlić Tkinter
         tk_img = ImageTk.PhotoImage(image=pil_img)
 
+        # Zaktualizuj canvas kamery nowym obrazem
         camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)
-        camera_canvas.image = tk_img 
+        camera_canvas.image = tk_img  # Przechowuj obraz, aby zapobiec jego usunięciu przez garbage collector
 
-        app.update() 
+        # Odśwież aplikację Tkinter, aby pokazać zaktualizowaną klatkę
+        app.update()
 
+    # Zwolnij kamerę wideo i zamknij wszystkie okna OpenCV po zakończeniu pętli
     cap.release()
     cv2.destroyAllWindows()
-pass

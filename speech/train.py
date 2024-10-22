@@ -3,7 +3,6 @@ from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 import os
 from scipy.io import wavfile
-import pandas as pd
 import numpy as np
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.preprocessing import LabelEncoder

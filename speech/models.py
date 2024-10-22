@@ -1,12 +1,10 @@
-from tensorflow.keras import layers
-from tensorflow.keras.layers import TimeDistributed, LayerNormalization
-from tensorflow.keras.models import Model
-from tensorflow.keras.regularizers import l2
-import kapre
-from kapre.composed import get_melspectrogram_layer
-from kapre.time_frequency import STFT
 import tensorflow as tf
-import os
+from tensorflow.keras import layers 
+from tensorflow.keras.layers import TimeDistributed, LayerNormalization 
+from tensorflow.keras.models import Model 
+from tensorflow.keras.regularizers import l2 
+from kapre.composed import get_melspectrogram_layer 
+
 
 def LSTM(N_CLASSES=15, SR=16000, DT=1.0):
     input_shape = (int(SR*DT), 1)

@@ -1,113 +1,104 @@
-import cv2
-from PIL import Image, ImageTk
-import mediapipe as mp
-import numpy as np
-from display import app, camera_canvas
+import cv2  # Import biblioteki OpenCV do przetwarzania obrazów
+from PIL import Image, ImageTk  # Import modułów do konwersji obrazów na formaty obsługiwane przez Tkinter
+import mediapipe as mp  # Import MediaPipe, narzędzia do analizy twarzy
+import numpy as np  # Import NumPy do operacji matematycznych na tablicach
+from display import app, camera_canvas  # Import elementów GUI z pliku display (aplikacja i obszar rysowania)
 
+# Ładowanie klasyfikatorów Haar do wykrywania cech twarzy
+face_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_frontalface_alt2.xml')  # Klasyfikator do wykrywania twarzy
+mouth_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_smile.xml')  # Klasyfikator do wykrywania uśmiechu
 
-face_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_frontalface_alt2.xml')
-eye_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_eye.xml')
-mouth_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_smile.xml')
-nose_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_mcs_nose.xml')
-
-
+# Inicjalizacja detektora siatki twarzy MediaPipe
 face_mesh_detector = mp.solutions.face_mesh.FaceMesh(
-    max_num_faces=1,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5
+    max_num_faces=1,  # Maksymalna liczba twarzy do wykrycia
+    min_detection_confidence=0.5,  # Minimalna pewność detekcji
+    min_tracking_confidence=0.5  # Minimalna pewność śledzenia
 )
 
-    
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh_detector = mp_face_mesh.FaceMesh(max_num_faces=1)
+mp_face_mesh = mp.solutions.face_mesh  # Skrócona nazwa do odwoływania się do modułu FaceMesh
+face_mesh_detector = mp_face_mesh.FaceMesh(max_num_faces=1)  # Detektor do wykrywania jednej twarzy
 
-def smile():
-    print("Smile detection started")
-    
-    cap = cv2.VideoCapture(0)
-    
-    while True:
-        ret, img = cap.read()
-        if not ret:
+def smile():  # Funkcja do detekcji uśmiechu
+    print("Smile detection started")  # Wypisuje informację o rozpoczęciu detekcji
+
+    cap = cv2.VideoCapture(0)  # Uruchamia kamerę (0 oznacza domyślne urządzenie wideo)
+
+    while True:  # Pętla, która będzie działać, dopóki nie zostanie przerwana
+        ret, img = cap.read()  # Odczyt klatki z kamery
+        if not ret:  # Jeśli nie udało się odczytać klatki, przerwij pętlę
             break
-        
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        
-        mouths = mouth_cascade.detectMultiScale(
-            gray,
-            scaleFactor=1.7,
-            minNeighbors=22,
-            minSize=(25, 25),
-            flags=cv2.CASCADE_SCALE_IMAGE
-        )
-        
-        smile_detected = False
-        for (sx, sy, sw, sh) in mouths:
-            aspect_ratio = sw / sh
-            if aspect_ratio > 1.7 and sy > img.shape[0] // 2:
-                smile_detected = True
-                center = (sx + sw // 2, sy + sh // 2)
-                axes = (sw // 2, sh // 2)
-                cv2.ellipse(img, center, axes, 0, 0, 360, (0, 255, 0), 2)
-        
-        results = face_mesh_detector.process(img_rgb)
-        if results.multi_face_landmarks:
-            landmarks = results.multi_face_landmarks[0].landmark
-            h, w, _ = img.shape
 
-            upper_lip_id = 13
-            lower_lip_id = 14
-            left_corner_id = 61
-            right_corner_id = 291
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Konwertuje obraz z BGR (OpenCV) na RGB (MediaPipe)
 
-            upper_lip_y = int(landmarks[upper_lip_id].y * h)
-            lower_lip_y = int(landmarks[lower_lip_id].y * h)
-            left_corner_x = int(landmarks[left_corner_id].x * w)
-            left_corner_y = int(landmarks[left_corner_id].y * h)
-            right_corner_x = int(landmarks[right_corner_id].x * w)
-            right_corner_y = int(landmarks[right_corner_id].y * h)
+        results = face_mesh_detector.process(img_rgb)  # Wykrywa punkty charakterystyczne twarzy za pomocą MediaPipe
+        if results.multi_face_landmarks:  # Jeśli wykryto punkty charakterystyczne
+            landmarks = results.multi_face_landmarks[0].landmark  # Pobiera punkty charakterystyczne pierwszej twarzy
+            h, w, _ = img.shape  # Pobiera wysokość, szerokość i liczbę kanałów obrazu
 
+            # Indeksy punktów charakterystycznych dla ust i kącików ust
+            upper_lip_id = 13  # Number indeksu górnej wargi
+            lower_lip_id = 14  # Number indeksu dolnej wargi
+            left_corner_id = 61  # Number indeksu lewego kącika ust
+            right_corner_id = 291  # Number indeksu prawego kącika ust
+
+            # Przekształcanie współrzędnych znormalizowanych na piksele
+            upper_lip_y = int(landmarks[upper_lip_id].y * h)  # Y górnej wargi
+            lower_lip_y = int(landmarks[lower_lip_id].y * h)  # Y dolnej wargi
+            left_corner_x = int(landmarks[left_corner_id].x * w)  # X lewego kącika ust
+            left_corner_y = int(landmarks[left_corner_id].y * h)  # Y lewego kącika ust
+            right_corner_x = int(landmarks[right_corner_id].x * w)  # X prawego kącika ust
+            right_corner_y = int(landmarks[right_corner_id].y * h)  # Y prawego kącika ust
+
+            # Oblicza odległość między kącikami ust
             corner_distance = np.sqrt((right_corner_x - left_corner_x) ** 2 + (right_corner_y - left_corner_y) ** 2)
 
+            # Rysuje linię między górną a dolną wargą
             cv2.line(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), (int(landmarks[lower_lip_id].x * w), lower_lip_y), (255, 0, 0), 2)
 
+            # Sprawdza, czy usta są otwarte
             if lower_lip_y - upper_lip_y > 10:
-                mouth_status = 'Mouth Open'
+                mouth_status = 'Mouth Open'  # Usta otwarte
             else:
-                mouth_status = 'Mouth Closed'
+                mouth_status = 'Mouth Closed'  # Usta zamknięte
 
+            # Sprawdza, czy odległość między kącikami ust jest wystarczająca do uznania uśmiechu
             if corner_distance > 70:
-                smile_detected = True
-                smile_text = 'Smiling'
+                smile_text = 'Smiling'  # Tekst: "Uśmiechnięty"
             else:
-                smile_text = 'Not Smiling'
+                smile_text = 'Not Smiling'  # Tekst: "Nie uśmiecha się"
 
-            cv2.circle(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), 5, (0, 255, 0), -1)
-            cv2.circle(img, (int(landmarks[lower_lip_id].x * w), lower_lip_y), 5, (0, 255, 0), -1)
-            cv2.circle(img, (left_corner_x, left_corner_y), 5, (0, 255, 0), -1)
-            cv2.circle(img, (right_corner_x, right_corner_y), 5, (0, 255, 0), -1)
+            # Rysuje kółka wokół ust i kącików
+            cv2.circle(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), 5, (0, 255, 0), -1)  # Górna warga
+            cv2.circle(img, (int(landmarks[lower_lip_id].x * w), lower_lip_y), 5, (0, 255, 0), -1)  # Dolna warga
+            cv2.circle(img, (left_corner_x, left_corner_y), 5, (0, 255, 0), -1)  # Lewy kącik ust
+            cv2.circle(img, (right_corner_x, right_corner_y), 5, (0, 255, 0), -1)  # Prawy kącik ust
 
+            # Rysuje linię między kącikami ust
             cv2.line(img, (left_corner_x, left_corner_y), (right_corner_x, right_corner_y), (255, 0, 0), 2)
 
+            # Wyświetla odległość między kącikami ust
             cv2.putText(img, f'Distance: {corner_distance:.2f}', (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
         else:
-            mouth_status = 'Mouth Status Unavailable'
-            smile_text = 'Not Smiling'
+            mouth_status = 'Mouth Status Unavailable'  # Brak danych o ustach
+            smile_text = 'Not Smiling'  # Brak uśmiechu
 
+        # Wyświetla status uśmiechu i ust na obrazie
         cv2.putText(img, smile_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
         cv2.putText(img, mouth_status, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
-        
-        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        tk_img = ImageTk.PhotoImage(image=pil_img)
-        
-        camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)
-        app.update()
-                
+
+        # Konwertuje obraz z OpenCV na format obsługiwany przez Tkinter
+        pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))  # Konwersja BGR -> RGB, a następnie na obraz PIL
+        tk_img = ImageTk.PhotoImage(image=pil_img)  # Konwersja na obraz Tkinter
+
+        # Rysuje obraz w oknie aplikacji
+        camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)  # Umieszcza obraz w lewym górnym rogu
+        app.update()  # Aktualizuje GUI
+
+        # Wyjście z pętli po naciśnięciu klawisza 'q'
         if cv2.waitKey(30) & 0xFF == ord('q'):
             break
-        
-    cap.release()
-    cv2.destroyAllWindows()
+
+    # Zamyka kamerę i okna OpenCV
+    cap.release()  # Zwalnia zasoby kamery
+    cv2.destroyAllWindows()  # Zamyka wszystkie okna OpenCV
 pass
-    
