@@ -18,8 +18,8 @@ face_mesh_detector = mp.solutions.face_mesh.FaceMesh(
 mp_face_mesh = mp.solutions.face_mesh  # Skrócona nazwa do odwoływania się do modułu FaceMesh
 face_mesh_detector = mp_face_mesh.FaceMesh(max_num_faces=1)  # Detektor do wykrywania jednej twarzy
 
-def smile():  # Funkcja do detekcji uśmiechu
-    print("Smile detection started")  # Wypisuje informację o rozpoczęciu detekcji
+def smile():
+    print("Smile detection started")
 
     cap = cv2.VideoCapture(0)  # Uruchamia kamerę (0 oznacza domyślne urządzenie wideo)
 
@@ -35,13 +35,11 @@ def smile():  # Funkcja do detekcji uśmiechu
             landmarks = results.multi_face_landmarks[0].landmark  # Pobiera punkty charakterystyczne pierwszej twarzy
             h, w, _ = img.shape  # Pobiera wysokość, szerokość i liczbę kanałów obrazu
 
-            # Indeksy punktów charakterystycznych dla ust i kącików ust
             upper_lip_id = 13  # Number indeksu górnej wargi
             lower_lip_id = 14  # Number indeksu dolnej wargi
             left_corner_id = 61  # Number indeksu lewego kącika ust
             right_corner_id = 291  # Number indeksu prawego kącika ust
 
-            # Przekształcanie współrzędnych znormalizowanych na piksele
             upper_lip_y = int(landmarks[upper_lip_id].y * h)  # Y górnej wargi
             lower_lip_y = int(landmarks[lower_lip_id].y * h)  # Y dolnej wargi
             left_corner_x = int(landmarks[left_corner_id].x * w)  # X lewego kącika ust

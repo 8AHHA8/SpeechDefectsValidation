@@ -6,7 +6,7 @@ from tensorflow.keras.regularizers import l2
 from kapre.composed import get_melspectrogram_layer 
 
 
-def LSTM(N_CLASSES=15, SR=16000, DT=1.0):
+def LSTM(N_CLASSES=7, SR=16000, DT=1.0):
     input_shape = (int(SR*DT), 1)
     i = get_melspectrogram_layer(input_shape=input_shape,
                                      n_mels=128,

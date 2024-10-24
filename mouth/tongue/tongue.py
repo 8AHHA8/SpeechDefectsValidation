@@ -8,18 +8,13 @@ from .determine_directions import determine_directions  # Importuj funkcję do o
 from .display_directions import display_directions  # Importuj funkcję do wyświetlania kierunków ruchu
 import time  # Importuj moduł time do mierzenia liczby klatek na sekundę (FPS)
 
-# Inicjalizuj model FaceMesh MediaPipe do wykrywania punktów charakterystycznych twarzy
-mp_face_mesh = mp.solutions.face_mesh
+mp_face_mesh = mp.solutions.face_mesh # Inicjalizacja detektora siatki twarzy MediaPipe
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1)  # Wykrywaj maksymalnie jedną twarz
 
-# Funkcja obsługująca wykrywanie ruchu języka
 def tongue():
-    print("Tongue detection started")  # Wypisz komunikat informujący o rozpoczęciu wykrywania
+    print("Tongue detection started")
 
-    cap = cv2.VideoCapture(0)  # Przechwytuj obraz wideo z domyślnej kamery (indeks 0)
-    if not cap.isOpened():
-        print("Error: Could not open camera.")  # Wypisz błąd, jeśli kamera nie może być dostępna
-        return  # Zakończ funkcję, jeśli kamera nie jest otwarta
+    cap = cv2.VideoCapture(0)  # Uruchamia kamerę (0 oznacza domyślne urządzenie wideo)
 
     prev_gray = None  # Inicjalizuj zmienną do przechowywania poprzedniej klatki w skali szarości dla przepływu optycznego
     vertical_movement_threshold = 0.5  # Próg czułości dla ruchu pionowego
@@ -41,23 +36,33 @@ def tongue():
             prev_gray = gray  # Ustaw bieżącą klatkę w skali szarości jako poprzednią
             continue  # Pomiń resztę pętli dla pierwszej klatki
 
-        # Oblicz przepływ optyczny między poprzednią a bieżącą klatką w skali szarości
+        # Oblicz przepływ optyczny między poprzednią a bieżącą klatką w skali szarości wykorzystując funkcję Gunnara Farnbacka
+        # prev_gray - poprzednia klatka przetwarzana w skali szarości
+        # gray - bierząca klatka przetwarzana w skali szarości
+        # None - stworzenie nowego miejsca na zapisanie wyników
+        # 0.5 - skala piramidy ustawiona na 50% oznacza, że będą próbkowane w dół(downsampling) o połowę swojego rozmiaru wraz z każdym poziomem piramidy 
+        # 3 - określenie liczby poziomów piramidy
+        # 15 - rozmiar okna o wymiarze 15 na 15 pikseli, które będzie służyło do określania wektorów ruchu dla każdej pikseli
+        # 3 - liczba iteracji(określenie ile razy algorytm będzie poprawiał swoje szacowanie ruchu na każdym poziomie piramidy/rozmytego obrazu)
+        # 5 - parametr określający jak duży obszar wokół każdego piksela będzie brany pod uwagę do analizy(sprawdzanie czy sąsiadujące ze sobą piksele poruszają się razem)
+        # 1.2 -  wartość określająca intensywność poziomu wygładzania obrazu
+        # 0 - parametr  odpowiedzialny za ustawienie dodatkowych opcji(niewykorzystany)
         flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         
-        # Pobierz wysokość i szerokość obrazu
+        # Pobieranie wysokości i szerokości obrazu
         img_height, img_width, _ = frame.shape
         
-        # Przekształć klatkę na RGB do przetwarzania przez MediaPipe
+        # Przekształcanie klatki na RGB do przetwarzania przez MediaPipe
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Wykonaj wykrywanie punktów charakterystycznych twarzy przy użyciu MediaPipe
+        # Wykrycie punktów charakterystycznych twarzy przy użyciu MediaPipe
         results = face_mesh.process(img_rgb)
 
         if results.multi_face_landmarks:  # Jeśli wykryto punkty charakterystyczne
             for face_landmarks in results.multi_face_landmarks:  # Przejdź przez każdą wykrytą twarz
                 # Uzyskaj współrzędne rozszerzonego obszaru dolnej części twarzy (w tym ust)
                 top_left, bottom_right = get_extended_lower_face_coordinates(face_landmarks.landmark, img_width, img_height)
-                
+
                 # Narysuj prostokąt wokół obszaru dolnej części twarzy
                 cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)
 
@@ -74,7 +79,7 @@ def tongue():
                     # Jeśli zmienił się kierunek poziomy, zaktualizuj go
                     if new_horizontal_direction and new_horizontal_direction != current_horizontal_direction:
                         current_horizontal_direction = new_horizontal_direction
-                    
+
                     # Jeśli zmienił się kierunek pionowy, zaktualizuj go
                     if new_vertical_direction and new_vertical_direction != current_vertical_direction:
                         current_vertical_direction = new_vertical_direction
