@@ -25,6 +25,7 @@ def right_cheek():
     current_puffed_status = None
     puffed_time = 0
     freeze_duration = 3
+    puff_count = 0
 
     while True:
         ret, frame = cap.read()
@@ -57,6 +58,7 @@ def right_cheek():
                     if current_puffed_status != "Right Cheek Movement":
                         current_puffed_status = "Right Cheek Movement"
                         puffed_time = time.time()
+                        puff_count += 1
                 elif new_puffed_status == "No Movement":
                     if current_puffed_status == "Right Cheek Movement":
                         if (time.time() - puffed_time) > freeze_duration:
@@ -66,6 +68,8 @@ def right_cheek():
         timer_text = f'Timer: {int(elapsed_time)}s' if current_puffed_status == "Right Cheek Movement" else ''
 
         display_puffed_status(frame, current_puffed_status, timer_text)
+        
+        cv2.putText(frame, f'Puffs Detected: {puff_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
 
         prev_gray = gray
 

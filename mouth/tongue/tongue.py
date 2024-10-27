@@ -22,6 +22,11 @@ def tongue():
 
     current_horizontal_direction = None  # Zmienna do przechowywania aktualnie wykrywanego kierunku poziomego
     current_vertical_direction = None  # Zmienna do przechowywania aktualnie wykrywanego kierunku pionowego
+    
+    up_count = 0
+    down_count = 0
+    left_count = 0
+    right_count = 0
 
     prev_time = time.time()  # Zapisz początkowy czas do mierzenia liczby klatek na sekundę (FPS)
 
@@ -76,13 +81,28 @@ def tongue():
                     # Określ nowe kierunki ruchu na podstawie średnich wektorów przepływu
                     new_horizontal_direction, new_vertical_direction = determine_directions(avg_fx, avg_fy, horizontal_movement_threshold, vertical_movement_threshold)
 
-                    # Jeśli zmienił się kierunek poziomy, zaktualizuj go
+                     # Jeśli zmienił się kierunek poziomy, zaktualizuj go
                     if new_horizontal_direction and new_horizontal_direction != current_horizontal_direction:
                         current_horizontal_direction = new_horizontal_direction
+                        if current_horizontal_direction == "Tongue Pointing Right":
+                            right_count += 1
+                        elif current_horizontal_direction == "Tongue Pointing Left":
+                            left_count += 1
 
                     # Jeśli zmienił się kierunek pionowy, zaktualizuj go
                     if new_vertical_direction and new_vertical_direction != current_vertical_direction:
                         current_vertical_direction = new_vertical_direction
+                        if current_vertical_direction == "Tongue Pointing Up":
+                            up_count += 1
+                        elif current_vertical_direction == "Tongue Pointing Down":
+                            down_count += 1
+
+            # Wyświetlanie liczników na klatce
+            cv2.putText(frame, f'Up: {up_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Down: {down_count}', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Left: {left_count}', (10, 250), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Right: {right_count}', (10, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+
 
         # Wyświetl wykryte kierunki ruchu na klatce
         display_directions(frame, current_horizontal_direction, current_vertical_direction)

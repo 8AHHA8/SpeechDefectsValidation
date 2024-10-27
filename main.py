@@ -9,8 +9,8 @@ from mouth.right_cheek.right_cheek import right_cheek
 from mouth.left_cheek.left_cheek import left_cheek
 from display import app, pressed_button, font_details, camera_canvas, scrollable_frame
 from speech.recognition import record, stop, play, check
-from words import record_word, check_word, play_word
-from words_dropdown import styled_dropdown
+from words.words import record_word, check_word, play_word
+from words.words_dropdown import styled_dropdown
 
 def main(exception=None):
     global pressed_button

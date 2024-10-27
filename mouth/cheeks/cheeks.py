@@ -24,6 +24,7 @@ def cheeks():
     current_puffed_status = None
     puffed_time = 0
     freeze_duration = 3
+    puff_count = 0
 
     while True:
         ret, frame = cap.read()
@@ -58,6 +59,7 @@ def cheeks():
                     if current_puffed_status != "Puffed":
                         current_puffed_status = "Puffed"
                         puffed_time = time.time()
+                        puff_count += 1
                 elif new_puffed_status == "Not puffed":
                     if current_puffed_status == "Puffed":
                         if (time.time() - puffed_time) > freeze_duration:
@@ -68,6 +70,8 @@ def cheeks():
 
         display_puffed_status(frame, current_puffed_status, timer_text)
 
+        cv2.putText(frame, f'Puffs Detected: {puff_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+        
         prev_gray = gray
 
         current_time = cv2.getTickCount()

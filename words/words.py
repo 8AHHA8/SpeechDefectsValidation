@@ -54,7 +54,7 @@ def check_word(progressbar, expected_word):
         print(f"Recognized Text: {recognized_text}")
         
         if recognized_text.lower() == expected_word.lower():
-            messagebox.showinfo("Sound Validation", f"Correct! Recognized: {recognized_text}")
+            messagebox.showinfo("Sound Validation", f"Word pronounced correctly: {recognized_text}")
         else:
             messagebox.showwarning("Sound Validation", f"Expected: {expected_word}, but recognized: {recognized_text}")
 
