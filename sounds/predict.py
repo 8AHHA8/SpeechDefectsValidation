@@ -1,5 +1,5 @@
 from tensorflow.keras.models import load_model
-from speech.clean import downsample_mono, envelope
+from sounds.clean import downsample_mono, envelope
 from kapre.time_frequency import STFT, Magnitude, ApplyFilterbank, MagnitudeToDecibel
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
@@ -16,7 +16,7 @@ def make_prediction_sample(args):
                         'ApplyFilterbank': ApplyFilterbank,
                         'MagnitudeToDecibel': MagnitudeToDecibel})
     
-    wav_paths = glob('speech/audios/**/*.wav', recursive=True)
+    wav_paths = glob('sounds/audios/**/*.wav', recursive=True)
     wav_paths = sorted([x.replace(os.sep, '/') for x in wav_paths if '.wav' in x])
     classes = sorted(os.listdir(args.src_dir))
     labels = [os.path.split(x)[0].split('/')[-1] for x in wav_paths]
@@ -47,17 +47,17 @@ def make_prediction_sample(args):
         real_class = os.path.dirname(wav_fn).split('/')[-1]
         results.append((real_class, classes[y_pred]))
 
-    np.save(os.path.join('speech/audios', args.pred_fn), np.array(results))
+    np.save(os.path.join('sounds/audios', args.pred_fn), np.array(results))
     return results
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Audio Classification Training')
-    parser.add_argument('--model_fn', type=str, default='speech/models/lstm.h5',
+    parser.add_argument('--model_fn', type=str, default='sounds/model/lstm.h5',
                         help='model file to make predictions')
     parser.add_argument('--pred_fn', type=str, default='y_pred',
                         help='fn to write predictions in logs dir')
-    parser.add_argument('--src_dir', type=str, default='speech/wavfiles',
+    parser.add_argument('--src_dir', type=str, default='sounds/wavfiles',
                         help='directory containing wavfiles to predict')
     parser.add_argument('--dt', type=float, default=1.0,
                         help='time in seconds to sample audio')

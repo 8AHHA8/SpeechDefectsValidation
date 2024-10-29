@@ -13,7 +13,7 @@ face_mesh_detector = mp.solutions.face_mesh.FaceMesh(
     min_tracking_confidence=0.5
 )
 
-def mouth_closed_open():
+def closed_open():
     print("mouth status button pressed")
     
     cap = cv2.VideoCapture(0)

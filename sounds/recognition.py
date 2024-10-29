@@ -4,7 +4,7 @@ import soundfile as sf
 import threading
 from tkinter import messagebox
 import argparse
-from speech.predict import make_prediction_sample
+from sounds.predict import make_prediction_sample
 
 def record(record_button, stop_button, play_button, check_button, progressbar):
     record_button.configure(state=tk.DISABLED)
@@ -23,7 +23,7 @@ def record_audio(record_button, stop_button, play_button, check_button, progress
     recording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
     sd.wait()
 
-    filename = "speech/audios/sample.wav"
+    filename = "sounds/audios/sample.wav"
     sf.write(filename, recording, fs)
 
     progressbar.stop()
@@ -44,7 +44,7 @@ def play(play_button, stop_button, progressbar):
     play_thread.start()
 
 def play_audio_thread(play_button, stop_button, progressbar):
-    filename = "speech/audios/sample.wav"
+    filename = "sounds/audios/sample.wav"
     try:
         data, fs = sf.read(filename, dtype='int16')
         sd.play(data, fs)
@@ -61,9 +61,9 @@ def check(progressbar, sound_type):
         progressbar.start()
 
         args = argparse.Namespace(
-            model_fn='speech/models/lstm.h5',
+            model_fn='sounds/model/lstm.h5',
             pred_fn='y_pred',
-            src_dir='speech/wavfiles',
+            src_dir='sounds/wavfiles',
             dt=1.0,
             sr=16000,
             threshold=20

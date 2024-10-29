@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from models import LSTM
+from speech.model import LSTM
 from tqdm import tqdm
 from glob import glob
 import argparse
@@ -63,8 +63,8 @@ def train(args):
     params = {'N_CLASSES':len(os.listdir(args.src_root)),
               'SR':sr,
               'DT':dt}
-    models = {'lstm':  LSTM(**params)}
-    assert model_type in models.keys(), '{} not an available model'.format(model_type)
+    model = {'lstm':  LSTM(**params)}
+    assert model_type in model.keys(), '{} not an available model'.format(model_type)
     csv_path = os.path.join('logs', '{}_history.csv'.format(model_type))
 
     wav_paths = glob('{}/**'.format(src_root), recursive=True)
@@ -89,8 +89,8 @@ def train(args):
                        params['N_CLASSES'], batch_size=batch_size)
     vg = DataGenerator(wav_val, label_val, sr, dt,
                        params['N_CLASSES'], batch_size=batch_size)
-    model = models[model_type]
-    cp = ModelCheckpoint('models/{}.h5'.format(model_type), monitor='val_loss',
+    model = model[model_type]
+    cp = ModelCheckpoint('model/{}.h5'.format(model_type), monitor='val_loss',
                          save_best_only=True, save_weights_only=False,
                          mode='auto', save_freq='epoch', verbose=1)
     csv_logger = CSVLogger(csv_path, append=False)

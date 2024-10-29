@@ -2,15 +2,15 @@ import customtkinter
 from tkinter import ttk
 from mouth.kiss import kiss
 from mouth.smile import smile
-from mouth.mouth_closed_open import mouth_closed_open
+from mouth.closed_open import closed_open
 from mouth.tongue.tongue import tongue
 from mouth.cheeks.cheeks import cheeks
 from mouth.right_cheek.right_cheek import right_cheek
 from mouth.left_cheek.left_cheek import left_cheek
 from display import app, pressed_button, font_details, camera_canvas, scrollable_frame
-from speech.recognition import record, stop, play, check
+from sounds.recognition import record, stop, play, check
 from words.words import record_word, check_word, play_word
-from words.words_dropdown import styled_dropdown
+from words.dropdown import styled_dropdown
 
 def main(exception=None):
     global pressed_button
@@ -19,12 +19,12 @@ def main(exception=None):
 button_frame = customtkinter.CTkFrame(master=scrollable_frame)
 button_frame.pack(pady=20, expand=True, fill="both")
 
-mouth_closed_open_button = customtkinter.CTkButton(
+closed_open_button = customtkinter.CTkButton(
     master=button_frame,
     text="Mouth open",
-    command=lambda: [main(mouth_closed_open_button), mouth_closed_open()],
+    command=lambda: [main(closed_open_button), closed_open()],
     font=font_details)
-mouth_closed_open_button.pack(pady=10)
+closed_open_button.pack(pady=10)
 
 smile_button = customtkinter.CTkButton(
     master=button_frame,

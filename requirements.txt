@@ -4,21 +4,25 @@ astunparse==1.6.3
 attrs==24.2.0
 audioread==3.0.1
 backcall==0.1.0
+Brotli @ file:///C:/b/abs_3d36mno480/croot/brotli-split_1714483178642/work
 cachetools==4.0.0
 certifi==2019.11.28
 cffi==1.17.0
 chardet==3.0.4
+charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
 colorama==0.4.6
 contourpy==1.1.1
 customtkinter==5.2.2
 cycler==0.10.0
 darkdetect==0.8.0
 decorator==4.4.2
-filelock==3.15.4
+duckdb==1.0.0
+filelock @ file:///C:/b/abs_f2gie28u58/croot/filelock_1700591233643/work
 flatbuffers==24.3.25
 fonttools==4.53.1
 fsspec==2024.6.1
 gast==0.3.3
+gmpy2 @ file:///C:/ci/gmpy2_1645456279018/work
 google-auth==1.11.3
 google-auth-oauthlib==0.4.1
 google-pasta==0.1.8
@@ -32,7 +36,7 @@ ipython==7.13.0
 ipython-genutils==0.2.0
 jax==0.4.13
 jedi==0.16.0
-Jinja2==3.1.4
+Jinja2 @ file:///C:/b/abs_92fccttino/croot/jinja2_1716993447201/work
 joblib==1.4.2
 jupyter-client==6.1.0
 jupyter-core==4.6.3
@@ -46,17 +50,17 @@ libclang==18.1.1
 librosa==0.10.2.post1
 llvmlite==0.41.1
 Markdown==3.2.1
-MarkupSafe==2.1.5
+MarkupSafe @ file:///C:/b/abs_ecfdqh67b_/croot/markupsafe_1704206030535/work
 matplotlib==3.7.5
 mediapipe==0.10.11
 mkl-fft @ file:///C:/b/abs_19i1y8ykas/croot/mkl_fft_1695058226480/work
 mkl-random @ file:///C:/b/abs_edwkj1_o69/croot/mkl_random_1695059866750/work
 mkl-service==2.4.0
 ml-dtypes==0.2.0
-mpmath==1.3.0
+mpmath @ file:///C:/b/abs_7833jrbiox/croot/mpmath_1690848321154/work
 msgpack==1.0.8
 msvc-runtime==14.29.30133
-networkx==3.1
+networkx @ file:///C:/b/abs_e6gi1go5op/croot/networkx_1690562046966/work
 numba==0.58.1
 numpy @ file:///C:/Users/dev-admin/mkl/numpy_and_numpy_base_1682982345978/work
 oauthlib==3.1.0
@@ -71,6 +75,7 @@ pickleshare==0.7.5
 Pillow==8.4.0
 platformdirs==4.2.2
 pooch==1.8.2
+pqt==0.0.2
 prompt-toolkit==3.0.4
 protobuf==3.20.3
 psutil==6.0.0
@@ -83,6 +88,10 @@ pycparser==2.19
 pydub==0.25.1
 Pygments==2.6.1
 pyparsing==2.4.6
+PyQt5==5.15.11
+PyQt5-Qt5==5.15.2
+PyQt5_sip==12.15.0
+PySocks @ file:///C:/ci/pysocks_1605287845585/work
 python-dateutil==2.9.0.post0
 python-speech-features==0.6
 pytz==2024.1
@@ -100,7 +109,8 @@ six==1.14.0
 sounddevice==0.5.0
 soundfile==0.12.1
 soxr==0.3.7
-sympy==1.13.2
+srt==3.5.3
+sympy @ file:///C:/b/abs_82njkonm7f/croot/sympy_1701397685028/work
 tensorboard==2.8.0
 tensorboard-data-server==0.6.1
 tensorboard-plugin-wit==1.7.0
@@ -110,19 +120,23 @@ tensorflow-io-gcs-filesystem==0.31.0
 termcolor==1.1.0
 tf-estimator-nightly==2.8.0.dev2021122109
 threadpoolctl==3.5.0
-torch==2.4.0
-torchvision==0.19.0
+torch==2.4.0+cu118
+torchaudio==2.4.0
+torchvision==0.19.0+cu118
 tornado==6.0.4
 tqdm==4.66.5
 traitlets==4.3.3
-typing_extensions==4.12.2
+typing_extensions @ file:///C:/b/abs_0as9mdbkfl/croot/typing_extensions_1715268906610/work
 tzdata==2024.1
 ultralytics==8.2.78
 ultralytics-thop==2.0.3
 urllib3==1.25.8
+vosk==0.3.45
 wavio==0.0.4
 wcwidth==0.1.8
+websockets==13.1
 Werkzeug==1.0.0
+win-inet-pton @ file:///C:/ci/win_inet_pton_1605306167264/work
 wincertstore==0.2
 wrapt==1.12.0
 zipp==3.20.0
