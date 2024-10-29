@@ -19,7 +19,7 @@ def mouth_closed_open():
     cap = cv2.VideoCapture(0)
     open_count = 0
     close_count = 0
-    mouth_status = 'closed'  # Initial state of the mouth
+    mouth_status = 'closed'
 
     while True:
         ret, img = cap.read()
@@ -43,17 +43,14 @@ def mouth_closed_open():
 
             cv2.line(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), (int(landmarks[lower_lip_id].x * w), lower_lip_y), (255, 0, 0), 2)\
             
-            # Draw circles on the lips
             cv2.circle(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), 5, (0, 255, 0), -1)
             cv2.circle(img, (int(landmarks[lower_lip_id].x * w), lower_lip_y), 5, (0, 255, 0), -1)
 
-            # Determine mouth status based on lip distance
             if lip_distance > 20:
                 current_status = 'open'
             else:
                 current_status = 'closed'
 
-            # Check for state change to count open/close actions
             if current_status != mouth_status:
                 if current_status == 'open':
                     open_count += 1
@@ -61,7 +58,6 @@ def mouth_closed_open():
                     close_count += 1
                 mouth_status = current_status
                 
-            # Displaying mouth status and counter
             cv2.putText(img, f'Mouth: {current_status.capitalize()}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
             cv2.putText(img, f'Distance: {lip_distance:.2f}', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
             cv2.putText(img, f'Opens: {open_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
@@ -69,7 +65,6 @@ def mouth_closed_open():
         else:
             cv2.putText(img, 'No face detected', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
         
-        # Update Tkinter image
         pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         tk_img = ImageTk.PhotoImage(image=pil_img)
         
