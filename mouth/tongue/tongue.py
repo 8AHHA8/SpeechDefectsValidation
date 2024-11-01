@@ -47,15 +47,15 @@ def tongue():
         # None - stworzenie nowego miejsca na zapisanie wyników
         # 0.5 - skala piramidy ustawiona na 50% oznacza, że będą próbkowane w dół(downsampling) o połowę swojego rozmiaru wraz z każdym poziomem piramidy 
         # 3 - określenie liczby poziomów piramidy
-        # 15 - rozmiar okna o wymiarze 15 na 15 pikseli, które będzie służyło do określania wektorów ruchu dla każdej pikseli
-        # 3 - liczba iteracji(określenie ile razy algorytm będzie poprawiał swoje szacowanie ruchu na każdym poziomie piramidy/rozmytego obrazu)
+        # 10 - rozmiar okna o wymiarze 15 na 15 pikseli, które będzie służyło do określania wektorów ruchu dla każdej pikseli
+        # 10 - liczba iteracji(określenie ile razy algorytm będzie poprawiał swoje szacowanie ruchu na każdym poziomie piramidy/rozmytego obrazu)
         # 5 - parametr określający jak duży obszar wokół każdego piksela będzie brany pod uwagę do analizy(sprawdzanie czy sąsiadujące ze sobą piksele poruszają się razem)
         # 1.2 -  wartość określająca intensywność poziomu wygładzania obrazu
         # 0 - parametr  odpowiedzialny za ustawienie dodatkowych opcji(niewykorzystany)
-        flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+        flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 10, 10, 5, 1.2, 0)
         
         # Pobieranie wysokości i szerokości obrazu
-        img_height, img_width, _ = frame.shape
+        h, w, _ = frame.shape
         
         # Przekształcanie klatki na RGB do przetwarzania przez MediaPipe
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -66,7 +66,7 @@ def tongue():
         if results.multi_face_landmarks:  # Jeśli wykryto punkty charakterystyczne
             for face_landmarks in results.multi_face_landmarks:  # Przejdź przez każdą wykrytą twarz
                 # Uzyskaj współrzędne rozszerzonego obszaru dolnej części twarzy (w tym ust)
-                top_left, bottom_right = get_extended_lower_face_coordinates(face_landmarks.landmark, img_width, img_height)
+                top_left, bottom_right = get_extended_lower_face_coordinates(face_landmarks.landmark, w, h)
 
                 # Narysuj prostokąt wokół obszaru dolnej części twarzy
                 cv2.rectangle(frame, top_left, bottom_right, (0, 255, 0), 2)

@@ -38,15 +38,15 @@ def right_cheek():
             prev_gray = gray
             continue
 
-        flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+        flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 10, 10, 5, 1.2, 0)
         
-        img_height, img_width, _ = frame.shape
+        h, w, _ = frame.shape
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = face_mesh.process(img_rgb)
 
         if results.multi_face_landmarks:
             for face_landmarks in results.multi_face_landmarks:
-                right_top_left, right_bottom_right = get_right_mouth_corner_rectangle(face_landmarks.landmark, img_width, img_height)
+                right_top_left, right_bottom_right = get_right_mouth_corner_rectangle(face_landmarks.landmark, w, h)
 
                 cv2.rectangle(frame, right_top_left, right_bottom_right, (0, 255, 0), 2)
 

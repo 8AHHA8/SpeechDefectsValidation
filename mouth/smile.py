@@ -33,8 +33,8 @@ def smile():
             break
 
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Konwertuje obraz z BGR (OpenCV) na RGB (MediaPipe)
-
         results = face_mesh_detector.process(img_rgb)  # Wykrywa punkty charakterystyczne twarzy za pomocą MediaPipe
+        
         if results.multi_face_landmarks:  # Jeśli wykryto punkty charakterystyczne
             landmarks = results.multi_face_landmarks[0].landmark  # Pobiera punkty charakterystyczne pierwszej twarzy
             h, w, _ = img.shape  # Pobiera wysokość, szerokość i liczbę kanałów obrazu
@@ -52,14 +52,14 @@ def smile():
             left_corner_y = int(landmarks[left_corner_id].y * h)  # Y lewego kącika ust
             right_corner_x = int(landmarks[right_corner_id].x * w)  # X prawego kącika ust
             right_corner_y = int(landmarks[right_corner_id].y * h)  # Y prawego kącika ust
-
+            
+            # Oblicza odległość między wargami
+            lip_distance = lower_lip_y - upper_lip_y
+            
             # Oblicza odległość między kącikami ust
             corner_distance = np.sqrt((right_corner_x - left_corner_x) ** 2 + (right_corner_y - left_corner_y) ** 2)
 
-            # Rysuje linię między górną a dolną wargą
-            cv2.line(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), (int(landmarks[lower_lip_id].x * w), lower_lip_y), (255, 0, 0), 2)
-            
-            if lower_lip_y - upper_lip_y > 10:
+            if lip_distance > 10:
                 mouth_status = 'Mouth Open'
                 mouth_open = True
             else:
@@ -77,6 +77,9 @@ def smile():
             else:
                 smile_text = 'Not Smiling'
                 smile_detected = False
+                
+            # Rysuje linię między górną a dolną wargą
+            cv2.line(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), (int(landmarks[lower_lip_id].x * w), lower_lip_y), (255, 0, 0), 2)
 
             # Rysuje kółka wokół ust i kącików
             cv2.circle(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), 5, (0, 255, 0), -1)  # Górna warga

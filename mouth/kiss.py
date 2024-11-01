@@ -7,13 +7,17 @@ from display import app, camera_canvas
 face_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_frontalface_alt2.xml')
 mouth_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_smile.xml')
 
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh_detector = mp_face_mesh.FaceMesh(max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+face_mesh_detector = mp.solutions.face_mesh.FaceMesh(
+    max_num_faces=1,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 
 def kiss():
     print("Kiss detection started")
     
     cap = cv2.VideoCapture(0)
+    
     kiss_count = 0
     kiss_detected = False
     
@@ -57,7 +61,9 @@ def kiss():
             cv2.putText(img, f'Distance: {corner_distance:.2f}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
             cv2.putText(img, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
             cv2.putText(img, f'Kiss Count: {kiss_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
-        
+        else:
+            cv2.putText(img, 'No face detected', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
+            
         pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         tk_img = ImageTk.PhotoImage(image=pil_img)
         
