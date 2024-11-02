@@ -91,25 +91,6 @@ def split_wavs(args):
                     save_sample(sample, rate, target_dir, fn, cnt)
 
 
-def test_threshold(args):
-    src_root = args.src_root
-    wav_paths = glob('{}/**'.format(src_root), recursive=True)
-    wav_path = [x for x in wav_paths if args.fn in x]
-    if len(wav_path) != 1:
-        print('audio file not found for sub-string: {}'.format(args.fn))
-        return
-    rate, wav = downsample_mono(wav_path[0], args.sr)
-    mask, env = envelope(wav, rate, threshold=args.threshold)
-    plt.style.use('ggplot')
-    plt.title('Signal Envelope, Threshold = {}'.format(str(args.threshold)))
-    plt.plot(wav[np.logical_not(mask)], color='r', label='remove')
-    plt.plot(wav[mask], color='c', label='keep')
-    plt.plot(env, color='m', label='envelope')
-    plt.grid(False)
-    plt.legend(loc='best')
-    plt.show()
-
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Cleaning audio data')
