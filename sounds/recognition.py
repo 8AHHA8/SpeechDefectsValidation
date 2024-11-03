@@ -35,15 +35,17 @@ def record_audio(record_button, stop_button, play_button, check_button, progress
 def stop():
     sd.stop()
 
-def play(play_button, stop_button, progressbar):
-    play_button.configure(state=tk.DISABLED)
+def play(play_button, stop_button, check_button, record_button, progressbar):
+    record_button.configure(state=tk.DISABLED)
     stop_button.configure(state=tk.NORMAL)
+    play_button.configure(state=tk.DISABLED)
+    check_button.configure(state=tk.DISABLED)
     progressbar.start()
 
     play_thread = threading.Thread(target=play_audio_thread, args=(play_button, stop_button, progressbar))
     play_thread.start()
 
-def play_audio_thread(play_button, stop_button, progressbar):
+def play_audio_thread(play_button, stop_button, check_button, record_button, progressbar):
     filename = "sounds/audios/sample.wav"
     try:
         data, fs = sf.read(filename, dtype='int16')
@@ -53,8 +55,10 @@ def play_audio_thread(play_button, stop_button, progressbar):
         messagebox.showerror("Error", f"An error occurred while playing audio: {str(e)}")
     finally:
         progressbar.stop()
+        record_button.configure(state=tk.NORMAL)
         stop_button.configure(state=tk.DISABLED)
         play_button.configure(state=tk.NORMAL)
+        check_button.configure(state=tk.NORMAL)
 
 def check(progressbar, sound_type):
     try:

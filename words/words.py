@@ -11,8 +11,8 @@ from vosk import Model, KaldiRecognizer
 model_path = "vosk-model-small-pl-0.22"
 model = Model(model_path)
 
-if not os.path.exists('word'):
-    os.makedirs('word')
+if not os.path.exists('words/word'):
+    os.makedirs('words/word')
 
 def record_word(progressbar):
     duration = 3
@@ -26,15 +26,39 @@ def record_audio(duration, fs, progressbar):
     sd.wait()
     progressbar.stop()
 
-    filename = "word/word.wav"
+    filename = "words/word/word.wav"
     sf.write(filename, recording, fs)
     return filename
+
+def play_word(progressbar):
+    try:
+        audio_file = "words/word/word.wav"
+        if not os.path.exists(audio_file):
+            messagebox.showerror("Error", "No recorded audio to play.")
+            return
+
+        thread = threading.Thread(target=play_audio, args=(audio_file, progressbar))
+        thread.start()
+
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+def play_audio(filename, progressbar):
+    try:
+        progressbar.start()
+        data, fs = sf.read(filename)
+        sd.play(data, samplerate=fs)
+        sd.wait()
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred while playing the audio: {str(e)}")
+    finally:
+        progressbar.stop()
 
 def check_word(progressbar, expected_word):
     try:
         progressbar.start()
 
-        audio_file = "word/word.wav"
+        audio_file = "words/word.wav"
         wf_test = wave.open(audio_file, "rb")
         
         rec = KaldiRecognizer(model, wf_test.getframerate())
@@ -65,26 +89,3 @@ def check_word(progressbar, expected_word):
         progressbar.stop()
 
 
-def play_word(progressbar):
-    try:
-        audio_file = "word/word.wav"
-        if not os.path.exists(audio_file):
-            messagebox.showerror("Error", "No recorded audio to play.")
-            return
-
-        thread = threading.Thread(target=play_audio, args=(audio_file, progressbar))
-        thread.start()
-
-    except Exception as e:
-        messagebox.showerror("Error", f"An error occurred: {str(e)}")
-
-def play_audio(filename, progressbar):
-    try:
-        progressbar.start()
-        data, fs = sf.read(filename)
-        sd.play(data, samplerate=fs)
-        sd.wait()
-    except Exception as e:
-        messagebox.showerror("Error", f"An error occurred while playing the audio: {str(e)}")
-    finally:
-        progressbar.stop()
