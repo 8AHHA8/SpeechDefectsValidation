@@ -5,6 +5,23 @@ import threading
 from tkinter import messagebox
 import argparse
 from sounds.predict import make_prediction_sample
+from tkinter import ttk
+
+def setup_progressbar_style():
+    style = ttk.Style()
+    style.theme_use('classic')
+
+    style.configure("TProgressbar",
+                    thickness=10,
+                    length=300,
+                    maximum=100,
+                    background='#2fa572',
+                    troughcolor='#2b2b2b',
+                    borderwidth=0,
+                    relief='flat',
+                    )
+
+setup_progressbar_style()
 
 def record(record_button, stop_button, play_button, check_button, progressbar):
     record_button.configure(state=tk.DISABLED)
@@ -42,7 +59,7 @@ def play(play_button, stop_button, check_button, record_button, progressbar):
     check_button.configure(state=tk.DISABLED)
     progressbar.start()
 
-    play_thread = threading.Thread(target=play_audio_thread, args=(play_button, stop_button, progressbar))
+    play_thread = threading.Thread(target=play_audio_thread, args=(play_button, stop_button, check_button, record_button, progressbar))
     play_thread.start()
 
 def play_audio_thread(play_button, stop_button, check_button, record_button, progressbar):

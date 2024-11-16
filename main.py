@@ -7,10 +7,14 @@ from mouth.tongue.tongue import tongue
 from mouth.cheeks.cheeks import cheeks
 from mouth.right_cheek.right_cheek import right_cheek
 from mouth.left_cheek.left_cheek import left_cheek
-from display import app, pressed_button, font_details, camera_canvas, scrollable_frame
+from display import app, pressed_button, font_details, scrollable_frame, camera_active
 from sounds.recognition import record, stop, play, check
 from words.words import record_word, check_word, play_word
 from words.dropdown import styled_dropdown
+
+def stop_camera():
+    global camera_active
+    camera_active = False
 
 def main(exception=None):
     global pressed_button
@@ -18,6 +22,13 @@ def main(exception=None):
 
 button_frame = customtkinter.CTkFrame(master=scrollable_frame)
 button_frame.pack(pady=20, expand=True, fill="both")
+
+close_camera_button = customtkinter.CTkButton(
+    master=button_frame,
+    text="Close Camera",
+    command=stop_camera,
+    font=font_details)
+close_camera_button.pack(pady=10)
 
 closed_open_button = customtkinter.CTkButton(
     master=button_frame,
@@ -120,7 +131,7 @@ def create_shared_buttons(frame, sound_type, action_type):
         play_sound_button = customtkinter.CTkButton(
             master=frame,
             text="Play",
-            command=lambda: play(play_sound_button, stop_sound_button, progressbar),
+            command=lambda: play(play_sound_button, stop_sound_button, check_sound_button, record_sound_button, progressbar),
             font=font_details,
             width=100)
         play_sound_button.pack(pady=5)

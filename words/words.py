@@ -14,6 +14,22 @@ model = Model(model_path)
 if not os.path.exists('words/word'):
     os.makedirs('words/word')
 
+def setup_progressbar_style():
+    style = ttk.Style()
+    style.theme_use('classic')
+
+    style.configure("TProgressbar",
+                    thickness=10,
+                    length=300,
+                    maximum=100,
+                    background='#2fa572',
+                    troughcolor='#2b2b2b',
+                    borderwidth=0,
+                    relief='flat',
+                    )
+
+setup_progressbar_style()
+
 def record_word(progressbar):
     duration = 3
     fs = 44100
@@ -58,7 +74,7 @@ def check_word(progressbar, expected_word):
     try:
         progressbar.start()
 
-        audio_file = "words/word.wav"
+        audio_file = "words/word/word.wav"
         wf_test = wave.open(audio_file, "rb")
         
         rec = KaldiRecognizer(model, wf_test.getframerate())
@@ -87,5 +103,4 @@ def check_word(progressbar, expected_word):
 
     finally:
         progressbar.stop()
-
 

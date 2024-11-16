@@ -2,7 +2,7 @@ import cv2
 from PIL import Image, ImageTk
 import mediapipe as mp
 import numpy as np
-from display import app, camera_canvas
+from display import app, camera_canvas, camera_active
 
 face_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_frontalface_alt2.xml')
 mouth_cascade = cv2.CascadeClassifier('.\opencv\data\haarcascades\haarcascade_smile.xml')
@@ -16,13 +16,16 @@ face_mesh_detector = mp.solutions.face_mesh.FaceMesh(
 def closed_open():
     print("mouth status button pressed")
     
+    global camera_active
+    camera_active = True
+    
     cap = cv2.VideoCapture(0)
     
     open_count = 0
     close_count = 0
     mouth_status = 'closed'
 
-    while True:
+    while camera_active: 
         ret, img = cap.read()
         if not ret:
             break
@@ -66,7 +69,7 @@ def closed_open():
         
         pil_img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         tk_img = ImageTk.PhotoImage(image=pil_img)
-        
+        camera_canvas.image = tk_img
         camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)
         app.update()
         
