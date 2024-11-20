@@ -3,80 +3,104 @@ from tkinter import ttk
 from mouth.kiss import kiss
 from mouth.smile import smile
 from mouth.closed_open import closed_open
-from mouth.tongue.tongue import tongue
+from mouth.tongue.tongue_horizontal import tongue_horizontal
+from mouth.tongue.tongue_vertical import tongue_vertical
 from mouth.cheeks.cheeks import cheeks
 from mouth.right_cheek.right_cheek import right_cheek
 from mouth.left_cheek.left_cheek import left_cheek
-from display import app, pressed_button, font_details, scrollable_frame, camera_active
+from display import app, pressed_button, font_details, scrollable_frame
 from sounds.recognition import record, stop, play, check
 from words.words import record_word, check_word, play_word
 from words.dropdown import styled_dropdown
 
-def stop_camera():
-    global camera_active
-    camera_active = False
+def disable_buttons(except_button=None):
+    for button in button_frame.winfo_children():
+        if button != except_button:
+            button.configure(state="disabled", fg_color="gray")
+
+def reset_buttons():
+    for button in button_frame.winfo_children():
+        button.configure(state="normal", fg_color="#2fa572")
 
 def main(exception=None):
     global pressed_button
-    pressed_button = exception
+    
+    if exception == pressed_button:
+        reset_buttons()
+        pressed_button = None
+    else:
+        if pressed_button:
+            pressed_button.configure(fg_color="darkgreen")
+            
+        pressed_button = exception
+        pressed_button.configure(fg_color="lightgreen")
+        disable_buttons(pressed_button)
 
 button_frame = customtkinter.CTkFrame(master=scrollable_frame)
 button_frame.pack(pady=20, expand=True, fill="both")
-
-close_camera_button = customtkinter.CTkButton(
-    master=button_frame,
-    text="Close Camera",
-    command=stop_camera,
-    font=font_details)
-close_camera_button.pack(pady=10)
 
 closed_open_button = customtkinter.CTkButton(
     master=button_frame,
     text="Mouth open",
     command=lambda: [main(closed_open_button), closed_open()],
-    font=font_details)
+    font=font_details,
+    width=200)
 closed_open_button.pack(pady=10)
 
 smile_button = customtkinter.CTkButton(
     master=button_frame,
     text="Smile",
     command=lambda: [main(smile_button), smile()],
-    font=font_details)
+    font=font_details,
+    width=200)
 smile_button.pack(pady=10)
 
 kiss_button = customtkinter.CTkButton(
     master=button_frame,
     text="Kiss",
     command=lambda: [main(kiss_button), kiss()],
-    font=font_details)
+    font=font_details,
+    width=200)
 kiss_button.pack(pady=10)
 
-tongue_button = customtkinter.CTkButton(
+tongue_horizontal_button = customtkinter.CTkButton(
     master=button_frame,
-    text="Tongue",
-    command=lambda: [main(tongue_button), tongue()],
-    font=font_details)
-tongue_button.pack(pady=10)
+    text="Tongue Horizontal",
+    command=lambda: [main(tongue_horizontal_button), tongue_horizontal()],
+    font=font_details,
+    width=200)
+tongue_horizontal_button.pack(pady=10)
+
+tongue_vertical_button = customtkinter.CTkButton(
+    master=button_frame,
+    text="Tongue Vertical",
+    command=lambda: [main(tongue_vertical_button), tongue_vertical()],
+    font=font_details,
+    width=200)
+tongue_vertical_button.pack(pady=10)
 
 cheeks_button = customtkinter.CTkButton(
     master=button_frame,
     text="Cheeks",
     command=lambda: [main(cheeks_button), cheeks()],
-    font=font_details)
+    font=font_details,
+    width=200)
 cheeks_button.pack(pady=10)
 
 right_cheek_button = customtkinter.CTkButton(
     master=button_frame,
     text="Right Cheek",
     command=lambda: [main(right_cheek_button), right_cheek()],
-    font=font_details)
+    font=font_details,
+    width=200)
 right_cheek_button.pack(pady=10)
 
 left_cheek_button = customtkinter.CTkButton(
     master=button_frame,
     text="Left Cheek",
     command=lambda: [main(left_cheek_button), left_cheek()],
-    font=font_details)
+    font=font_details,
+    width=200)
 left_cheek_button.pack(pady=10)
 
 def toggle_menu(button, sound_type, action_type):
@@ -104,7 +128,6 @@ def toggle_menu(button, sound_type, action_type):
     else:
         print("Hiding buttons for action type:", action_type)
         button.frame.pack_forget()
-
 
 def create_shared_buttons(frame, sound_type, action_type):
     print(f"Creating shared buttons for action type: {action_type}")
@@ -176,28 +199,32 @@ lip_roll_button = customtkinter.CTkButton(
     master=button_frame,
     text="Lip roll",
     command=lambda: toggle_menu(lip_roll_button, "Lip roll", "lip_munch_kneel"),
-    font=font_details)
+    font=font_details,
+    width=200)
 lip_roll_button.pack(pady=10)
 
 munching_button = customtkinter.CTkButton(
     master=button_frame,
     text="Munching",
     command=lambda: toggle_menu(munching_button, "Munching", "lip_munch_kneel"),
-    font=font_details)
+    font=font_details,
+    width=200)
 munching_button.pack(pady=10)
 
 kneeling_button = customtkinter.CTkButton(
     master=button_frame,
     text="Kneeling",
     command=lambda: toggle_menu(kneeling_button, "Kneeling", "lip_munch_kneel"),
-    font=font_details)
+    font=font_details,
+    width=200)
 kneeling_button.pack(pady=10)
 
 words_button = customtkinter.CTkButton(
     master=button_frame,
     text="Words",
     command=lambda: toggle_menu(words_button, "Words", "words"),
-    font=font_details)
+    font=font_details,
+    width=200)
 words_button.pack(pady=10)
 
 app.mainloop()

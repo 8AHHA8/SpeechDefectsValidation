@@ -4,8 +4,9 @@ app = customtkinter.CTk()
 app.geometry("942x440")
 app.title("General recognition")
 
-global camera_active
+global camera_active, cap
 camera_active = False
+cap = None
 
 pressed_button = None
 font_details = customtkinter.CTkFont(size=20, weight="bold", family="Helvetica")
