@@ -31,3 +31,5 @@ camera_canvas = customtkinter.CTkCanvas(master=camera_frame, bg="#2b2b2b", highl
 camera_canvas.pack(side="left", fill="both", expand=True)
 
 app.resizable(False, False)
+
+

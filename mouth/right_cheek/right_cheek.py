@@ -12,6 +12,17 @@ from .right_puffed_status import display_puffed_status
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1)
 
+def on_close():
+    print("Closing window...")
+    global camera_active, cap
+    camera_active = False
+
+    if cap is not None:
+        cap.release()
+
+    camera_canvas.delete("all")
+    app.destroy()
+
 def right_cheek():
 
     global camera_active, cap
@@ -40,38 +51,50 @@ def right_cheek():
     freeze_duration = 3
     puff_count = 0
 
-    try:
-        while camera_active:
-            ret, frame = cap.read()
-            if not ret:
-                break
+    def update_frame():
+        nonlocal puff_threshold, current_puffed_status, prev_time, prev_gray, puffed_time, freeze_duration, puff_count
 
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            if prev_gray is None:
-                prev_gray = gray
-                continue
+        if not camera_active:
+            return
 
-            flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 10, 10, 5, 1.2, 0)
+        ret, frame = cap.read()
+        if not ret:
+            camera_canvas.delete("all")
+            return
             
-            h, w, _ = frame.shape
-            img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = face_mesh.process(img_rgb)
+        app.protocol("WM_DELETE_WINDOW", on_close)
 
-            if results.multi_face_landmarks:
-                for face_landmarks in results.multi_face_landmarks:
-                    right_top_left, right_bottom_right = get_right_mouth_corner_rectangle(face_landmarks.landmark, w, h)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if prev_gray is None:
+            prev_gray = gray
+            pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            tk_img = ImageTk.PhotoImage(image=pil_img)
+            camera_canvas.image = tk_img
+            camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)
+            app.after(1, update_frame)
+            return
 
-                    cv2.rectangle(frame, right_top_left, right_bottom_right, (0, 255, 0), 2)
+        flow = cv2.calcOpticalFlowFarneback(prev_gray, gray, None, 0.5, 3, 10, 10, 5, 1.2, 0)
+            
+        h, w, _ = frame.shape
+        img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = face_mesh.process(img_rgb)
 
-                    sum_fx_left, _ = draw_optical_flow_vectors(frame, flow, right_top_left, right_bottom_right)
+        if results.multi_face_landmarks:
+            for face_landmarks in results.multi_face_landmarks:
+                right_top_left, right_bottom_right = get_right_mouth_corner_rectangle(face_landmarks.landmark, w, h)
 
-                    new_puffed_status = determine_puffed(sum_fx_left, puff_threshold)
+                cv2.rectangle(frame, right_top_left, right_bottom_right, (0, 255, 0), 2)
 
-                    if new_puffed_status == "Right Cheek Movement":
-                        if current_puffed_status != "Right Cheek Movement":
-                            current_puffed_status = "Right Cheek Movement"
-                            puffed_time = time.time()
-                            puff_count += 1
+                sum_fx_left, _ = draw_optical_flow_vectors(frame, flow, right_top_left, right_bottom_right)
+
+                new_puffed_status = determine_puffed(sum_fx_left, puff_threshold)
+
+                if new_puffed_status == "Right Cheek Movement":
+                    if current_puffed_status != "Right Cheek Movement":
+                        current_puffed_status = "Right Cheek Movement"
+                        puffed_time = time.time()
+                        puff_count += 1
                     elif new_puffed_status == "No Movement":
                         if current_puffed_status == "Right Cheek Movement":
                             if (time.time() - puffed_time) > freeze_duration:
@@ -93,20 +116,15 @@ def right_cheek():
 
             cv2.putText(frame, f"FPS: {fps:.2f}", (10, 400), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
-            pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            tk_img = ImageTk.PhotoImage(image=pil_img)
+        pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        tk_img = ImageTk.PhotoImage(image=pil_img)
 
-            camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)
-            camera_canvas.image = tk_img 
+        camera_canvas.image = tk_img
+        camera_canvas.create_image(0, 0, anchor="nw", image=tk_img)
 
-            app.update() 
+        if camera_active:
+            app.after(1, update_frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+    app.protocol("WM_DELETE_WINDOW", on_close)
+    update_frame()
 
-    except Exception as e:
-        print(f"An error occurred during camera processing: {e}")
-    finally:
-        if cap:
-            cap.release()
-        cv2.destroyAllWindows()
