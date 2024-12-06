@@ -8,8 +8,7 @@ def styled_dropdown(master, word_options):
     style.configure("TCombobox", padding=5, relief="flat", font=("Helvetica", 12))
 
     word_dropdown = ttk.Combobox(
-        master=master, 
-        textvariable=selected_word, 
+        master=master,
         values=word_options, 
         state='readonly', 
         width=25
