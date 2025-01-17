@@ -74,8 +74,8 @@ def kiss():
 
             corner_distance = np.sqrt((right_corner_x - left_corner_x) ** 2 + (right_corner_y - left_corner_y) ** 2)
 
-            if corner_distance > 55:
-                text = 'Too far'
+            if corner_distance > 70:
+                text = 'Too close to the screen'
                 kiss_detected = False
             elif corner_distance < 50:
                 text = 'Kiss Detected'

@@ -14,27 +14,34 @@ from words.words import record_word, check_word, play_word
 from words.dropdown import styled_dropdown
 
 def disable_buttons(except_button=None):
-    for button in button_frame.winfo_children():
-        if button != except_button:
-            button.configure(state="disabled", fg_color="gray")
+    try:
+        for button in button_frame.winfo_children():
+            if button != except_button:
+                button.configure(state="disabled", fg_color="gray")
+    except Exception as e:
+        print(f"Disabling buttons: {e}")
 
 def reset_buttons():
-    for button in button_frame.winfo_children():
-        button.configure(state="normal", fg_color="#2fa572")
+    try:
+        for button in button_frame.winfo_children():
+            button.configure(state="normal", fg_color="#2fa572")
+    except Exception as e:
+        print(f"Resetting buttons: {e}")
 
 def main(exception=None):
     global pressed_button
-    
-    if exception == pressed_button:
-        reset_buttons()
-        pressed_button = None
-    else:
-        if pressed_button:
-            pressed_button.configure(fg_color="darkgreen")
-            
-        pressed_button = exception
-        pressed_button.configure(fg_color="lightgreen")
-        disable_buttons(pressed_button)
+    try:
+        if exception == pressed_button:
+            reset_buttons()
+            pressed_button = None
+        else:
+            if pressed_button:
+                pressed_button.configure(fg_color="darkgreen")
+            pressed_button = exception
+            pressed_button.configure(fg_color="lightgreen")
+            disable_buttons(pressed_button)
+    except Exception as e:
+        print(f"Error in main function: {e}")
 
 button_frame = customtkinter.CTkFrame(master=scrollable_frame)
 button_frame.pack(pady=20, expand=True, fill="both")
@@ -104,96 +111,102 @@ left_cheek_button = customtkinter.CTkButton(
 left_cheek_button.pack(pady=10)
 
 def toggle_menu(button, sound_type, action_type):
-    print(f"Toggling menu for action type: {action_type}")
-    if not hasattr(button, 'frame') or not button.frame.winfo_ismapped():
-        if action_type == "lip_munch_kneel":
-            for btn in [words_button]:
-                if hasattr(btn, 'frame') and btn.frame.winfo_ismapped():
-                    print("Hiding words buttons")
-                    btn.frame.pack_forget()
+    try:
+        print(f"Toggle menu for action: {action_type}")
+        if not hasattr(button, 'frame') or not button.frame.winfo_ismapped():
+            if action_type == "lip_munch_kneel":
+                for btn in [words_button]:
+                    if hasattr(btn, 'frame') and btn.frame.winfo_ismapped():
+                        print("Hiding words buttons")
+                        btn.frame.pack_forget()
 
-        elif action_type == "words":
-            for btn in [lip_roll_button, munching_button, kneeling_button]:
-                if hasattr(btn, 'frame') and btn.frame.winfo_ismapped():
-                    print("Hiding lip munch kneel buttons")
-                    btn.frame.pack_forget()
+            elif action_type == "words":
+                for btn in [lip_roll_button, munching_button, kneeling_button]:
+                    if hasattr(btn, 'frame') and btn.frame.winfo_ismapped():
+                        print("Hiding lip munch kneel buttons")
+                        btn.frame.pack_forget()
 
-        if not hasattr(button, 'frame'):
-            button.frame = customtkinter.CTkFrame(master=button_frame)
-            button.frame.pack(after=button, pady=10, fill="x")
-            create_shared_buttons(button.frame, sound_type, action_type)
-            print("Created buttons for action type:", action_type)
+            if not hasattr(button, 'frame'):
+                button.frame = customtkinter.CTkFrame(master=button_frame)
+                button.frame.pack(after=button, pady=10, fill="x")
+                create_shared_buttons(button.frame, sound_type, action_type)
+                print("Displayed buttons for action:", action_type)
+            else:
+                button.frame.pack(after=button, pady=10, fill="x")
         else:
-            button.frame.pack(after=button, pady=10, fill="x")
-    else:
-        print("Hiding buttons for action type:", action_type)
-        button.frame.pack_forget()
+            print("Hiding buttons for action type:", action_type)
+            button.frame.pack_forget()
+    except Exception as e:
+        print(f"Toggle menu: {e}")
 
 def create_shared_buttons(frame, sound_type, action_type):
-    print(f"Creating shared buttons for action type: {action_type}")
-    progressbar = ttk.Progressbar(master=frame, mode="indeterminate", length=300)
-    progressbar.pack(pady=10)
+    try:
+        print(f"Displaying shared buttons for action type: {action_type}")
+        progressbar = ttk.Progressbar(master=frame, mode="indeterminate", length=300)
+        progressbar.pack(pady=10)
 
-    if action_type == "lip_munch_kneel":
-        record_sound_button = customtkinter.CTkButton(
-            master=frame,
-            text="Record",
-            command=lambda: record(record_sound_button, stop_sound_button, play_sound_button, check_sound_button, progressbar),
-            font=font_details,
-            width=100)
-        record_sound_button.pack(pady=5)
+        if action_type == "lip_munch_kneel":
+            record_sound_button = customtkinter.CTkButton(
+                master=frame,
+                text="Record",
+                command=lambda: record(record_sound_button, stop_sound_button, play_sound_button, check_sound_button, progressbar),
+                font=font_details,
+                width=100)
+            record_sound_button.pack(pady=5)
 
-        stop_sound_button = customtkinter.CTkButton(
-            master=frame,
-            text="Stop",
-            command=stop,
-            font=font_details,
-            width=100)
-        stop_sound_button.pack(pady=5)
+            stop_sound_button = customtkinter.CTkButton(
+                master=frame,
+                text="Stop",
+                command=stop,
+                font=font_details,
+                width=100)
+            stop_sound_button.pack(pady=5)
 
-        play_sound_button = customtkinter.CTkButton(
-            master=frame,
-            text="Play",
-            command=lambda: play(play_sound_button, stop_sound_button, check_sound_button, record_sound_button, progressbar),
-            font=font_details,
-            width=100)
-        play_sound_button.pack(pady=5)
+            play_sound_button = customtkinter.CTkButton(
+                master=frame,
+                text="Play",
+                command=lambda: play(play_sound_button, stop_sound_button, check_sound_button, record_sound_button, progressbar),
+                font=font_details,
+                width=100)
+            play_sound_button.pack(pady=5)
 
-        check_sound_button = customtkinter.CTkButton(
-            master=frame,
-            text="Check",
-            command=lambda: check(progressbar, sound_type),
-            font=font_details,
-            width=100)
-        check_sound_button.pack(pady=5)
+            check_sound_button = customtkinter.CTkButton(
+                master=frame,
+                text="Check",
+                command=lambda: check(progressbar, sound_type),
+                font=font_details,
+                width=100)
+            check_sound_button.pack(pady=5)
 
-    elif action_type == "words":
-        word_options = ["słowo", "szczebrzeszyn", "dżem", "rabarbar", "październik"]
-        selected_word = styled_dropdown(frame, word_options)
+        elif action_type == "words":
+            word_options = ["słowo", "szczebrzeszyn", "dżem", "rabarbar", "październik"]
+            selected_word = styled_dropdown(frame, word_options)
 
-        record_word_button = customtkinter.CTkButton(
-            master=frame,
-            text="Record",
-            command=lambda: record_word(progressbar),
-            font=font_details,
-            width=100)
-        record_word_button.pack(pady=5)
-        
-        play_word_button = customtkinter.CTkButton(
-            master=frame,
-            text="Play",
-            command=lambda: play_word(progressbar),
-            font=font_details,
-            width=100)
-        play_word_button.pack(pady=5)
-        
-        check_word_button = customtkinter.CTkButton(
-            master=frame,
-            text="Check",
-            command=lambda: check_word(progressbar, selected_word.get()),
-            font=font_details,
-            width=100)
-        check_word_button.pack(pady=5)
+            record_word_button = customtkinter.CTkButton(
+                master=frame,
+                text="Record",
+                command=lambda: record_word(progressbar),
+                font=font_details,
+                width=100)
+            record_word_button.pack(pady=5)
+            
+            play_word_button = customtkinter.CTkButton(
+                master=frame,
+                text="Play",
+                command=lambda: play_word(progressbar),
+                font=font_details,
+                width=100)
+            play_word_button.pack(pady=5)
+            
+            check_word_button = customtkinter.CTkButton(
+                master=frame,
+                text="Check",
+                command=lambda: check_word(progressbar, selected_word.get()),
+                font=font_details,
+                width=100)
+            check_word_button.pack(pady=5)
+    except Exception as e:
+        print(f"Error creating shared buttons: {e}")
 
 lip_roll_button = customtkinter.CTkButton(
     master=button_frame,
