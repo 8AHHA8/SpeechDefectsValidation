@@ -45,7 +45,7 @@ def left_cheek():
     prev_gray = None
     prev_time = cv2.getTickCount()
 
-    puff_threshold = 15
+    puff_threshold = 30
     current_puffed_status = None
     puffed_time = 0
     freeze_duration = 3

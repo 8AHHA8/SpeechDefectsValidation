@@ -100,7 +100,7 @@ def check(progressbar, sound_type):
             if detected_sound.lower() == sound_type.lower():
                 messagebox.showinfo("Sound Validation", f"{sound_type} sound is correct! Detected: {detected_sound}")
             else:
-                messagebox.showwarning("Sound Validation", f"Expected: {sound_type}, but detected: {detected_sound}. This is incorrect.")
+                messagebox.showwarning("Sound Validation", f"Expected: {sound_type}, but provided sound was wrong. This is incorrect.")
 
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {str(e)}")

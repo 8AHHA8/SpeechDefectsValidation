@@ -11,7 +11,8 @@ def styled_dropdown(master, word_options):
         master=master,
         values=word_options, 
         state='readonly', 
-        width=25
+        width=25,
+        textvariable=selected_word
     )
     word_dropdown.pack(pady=5)
 

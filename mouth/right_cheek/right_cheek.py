@@ -45,7 +45,7 @@ def right_cheek():
     prev_gray = None
     prev_time = cv2.getTickCount()
 
-    puff_threshold = 15
+    puff_threshold = 30
     current_puffed_status = None
     puffed_time = 0
     freeze_duration = 3
@@ -90,20 +90,25 @@ def right_cheek():
 
                 new_puffed_status = determine_puffed(sum_fx_left, puff_threshold)
 
-                if new_puffed_status == "Right Cheek Movement":
-                    if current_puffed_status != "Right Cheek Movement":
-                        current_puffed_status = "Right Cheek Movement"
+                if new_puffed_status == "Left Cheek Movement":
+                    if current_puffed_status != "Left Cheek Movement":
+                        current_puffed_status = "Left Cheek Movement"
                         puffed_time = time.time()
                         puff_count += 1
-                    elif new_puffed_status == "No Movement":
-                        if current_puffed_status == "Right Cheek Movement":
-                            if (time.time() - puffed_time) > freeze_duration:
-                                current_puffed_status = "No Movement"
+                elif new_puffed_status == "No Movement":
+                    if current_puffed_status == "Left Cheek Movement":
+                        if (time.time() - puffed_time) > freeze_duration:
+                            current_puffed_status = "No Movement"
+                            puffed_time = None
 
-            elapsed_time = time.time() - puffed_time
-            timer_text = f'Timer: {int(elapsed_time)}s' if current_puffed_status == "Right Cheek Movement" else ''
+            if puffed_time is not None and current_puffed_status == "Left Cheek Movement":
+                elapsed_time = time.time() - puffed_time
+                timer_text = f'Timer: {int(elapsed_time)}s'
+            else:
+                timer_text = ''
 
             display_puffed_status(frame, current_puffed_status, timer_text)
+
             
             cv2.putText(frame, f'Puffs Detected: {puff_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
 

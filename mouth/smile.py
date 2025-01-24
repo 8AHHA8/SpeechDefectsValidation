@@ -96,17 +96,18 @@ def smile():
                 mouth_status = 'Mouth Closed'
                 mouth_open = False
 
-            if corner_distance > 70:
+            if corner_distance > 80:
                 smile_text = 'Smiling'
                 if not smile_detected:
                     if mouth_open:
                         open_mouth_smiles += 1
                     else:
                         closed_mouth_smiles += 1
-                        smile_detected = True
+                    smile_detected = True
             else:
                 smile_text = 'Not Smiling'
                 smile_detected = False
+
                     
             # Rysuje linię między górną a dolną wargą
             cv2.line(img, (int(landmarks[upper_lip_id].x * w), upper_lip_y), (int(landmarks[lower_lip_id].x * w), lower_lip_y), (255, 0, 0), 2)
