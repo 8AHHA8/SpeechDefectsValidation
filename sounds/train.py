@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from speech.model import LSTM
+from model import LSTM
 from tqdm import tqdm
 from glob import glob
 import argparse
