@@ -96,8 +96,8 @@ def tongue_horizontal():
                         elif current_horizontal_direction == "Tongue Pointing Right":
                             left_count += 1
 
-            cv2.putText(frame, f'Left: {left_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            cv2.putText(frame, f'Right: {right_count}', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Left: {left_count}', (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Right: {right_count}', (10, 125), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
 
         display_directions(frame, current_horizontal_direction, None)
 

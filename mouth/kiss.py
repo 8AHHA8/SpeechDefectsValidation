@@ -63,7 +63,7 @@ def kiss():
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0].landmark
             h, w, _ = img.shape
-                
+            
             left_corner_id = 61
             right_corner_id = 291
 
@@ -73,8 +73,11 @@ def kiss():
             right_corner_y = int(landmarks[right_corner_id].y * h)
 
             corner_distance = np.sqrt((right_corner_x - left_corner_x) ** 2 + (right_corner_y - left_corner_y) ** 2)
+            
+            right_corner_color = (0, 255, 0)
 
             if corner_distance > 70:
+                right_corner_color = (0, 0, 255)
                 text = 'Too close to the screen'
                 kiss_detected = False
             elif corner_distance < 50:
@@ -83,6 +86,7 @@ def kiss():
                     kiss_count += 1
                     kiss_detected = True
             else:
+                right_corner_color = (0, 0, 255)
                 text = 'No Kiss'
                 kiss_detected = False
 
@@ -90,8 +94,14 @@ def kiss():
             cv2.circle(img, (right_corner_x, right_corner_y), 5, (0, 255, 0), -1)
             cv2.line(img, (left_corner_x, left_corner_y), (right_corner_x, right_corner_y), (255, 0, 0), 2)
             cv2.putText(img, f'Distance: {corner_distance:.2f}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
-            cv2.putText(img, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)
+            cv2.putText(img, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.8, right_corner_color, 2, cv2.LINE_AA)
             cv2.putText(img, f'Kiss Count: {kiss_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2, cv2.LINE_AA)
+            
+            right_corner_text = "Proper distance is 55"
+            text_size = cv2.getTextSize(right_corner_text, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+            text_x = w - text_size[0] - 100
+            text_y = text_size[1] + 30
+            cv2.putText(img, right_corner_text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
         else:
             cv2.putText(img, 'No face detected', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
                 

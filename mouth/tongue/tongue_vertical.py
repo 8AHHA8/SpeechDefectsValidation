@@ -96,8 +96,8 @@ def tongue_vertical():
                         elif current_vertical_direction == "Tongue Pointing Down":
                             down_count += 1
 
-            cv2.putText(frame, f'Up: {up_count}', (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-            cv2.putText(frame, f'Down: {down_count}', (10, 200), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Up: {up_count}', (10, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(frame, f'Down: {down_count}', (10, 125), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
 
         display_directions(frame, None, current_vertical_direction)
 
